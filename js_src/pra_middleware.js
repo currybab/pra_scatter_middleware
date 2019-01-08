@@ -221,77 +221,18 @@ var eos = function (network, _eos, options) {
             var praCallbackFun = getCallbackName();
             window[praCallbackFun] = function (result) {
               try {
-                if (result.indexOf('error') > -1) {
+                if (typeof result === 'string' && result.indexOf('error') > -1) {
+                  reject(JSON.parse(result));
+                } else if (JSON.stringify(result).indexOf('error') > -1) {
                   reject(result);
-                  return;
-                }
-                var res = {
-                  broadcast: true,
-                  processed: {},
-                  transaction: {
-                    compression: "none",
-                    signatures: ['SIG_K1_Jvs9Goiw56LXPT2SSB2vcAp6x2Q4idiccZ7bv54oKMu3H2u1yAbc9XEDESp5Z6sqARSpnMBYjMeWyCusbmseDy4ctY8N3r'],
-                    transaction: {}
-                  },
-                  transaction_id: ""
-                };
-                result = result.replace(/\s+/g, "");
-                if (result != '') {
-                  if (result.search(/error/i) > -1) {
-                    res.broadcast = false;
-                    res.error = result;
-                  } else {
-                    result = result.split('transaction:');
-                    res.transaction_id = result[1];
-                    res.broadcast = true;
-                  }
                 } else {
-                  res.broadcast = false;
-                }
-                res = new Proxy(res, {
-                  get: function (obj, prop) {
-                    if (obj[prop] === undefined) {
-                      return new Proxy({}, {
-                        get: function (obj_c, prop_c) {
-                          if (obj_c[prop_c] === undefined) {
-                            return function () {
-                              var values = Array.prototype.slice.apply(arguments);
-                              var params = JSON.stringify(values);
-                              return new Promise(function (resolve, reject) {
-                                var praCallbackFun = getCallbackName();
-                                window[praCallbackFun] = function (res) {
-                                  try {
-                                    resolve(res);
-                                  } catch (e) {
-                                    reject(e);
-                                  }
-                                }
-                                sendPraRequest('contract_all', prop, prop_c, params, praCallbackFun);
-                              });
-                            }
-                          }
-                          return obj_c[prop_c]
-                        }
-                      });
-                    }
-                    return obj[prop]
-                  }
-                });
-                resolve(res);
-                if (callback) {
-                  if (callbackType === 0 || callbackType === 1 || callbackType === 4) {
-                    callback(res.__any__);
-                  } else if (callbackType === 2) {
-                    callback = callback.length === 1 ? callback(res) : callback(null, res);
-                  } else if (callbackType === 3) {
-                    callback(res);
-                  } else {
-                    callback(res.__any__);
-                    cb(res);
-                  }
+                  var res = (typeof result === 'string') ? JSON.parse(result) : result;
+                  resolve(res);
+                  if (callback) callback(null, res);
                 }
               } catch (e) {
                 reject(e);
+                if (callback) callback(e)
               }
             }
             sendPraRequest('transaction', 'eosio.token', '', paramStr, praCallbackFun);
@@ -323,21 +264,12 @@ var eos = function (network, _eos, options) {
             var praCallbackFun = getCallbackName();
             window[praCallbackFun] = function (result) {
               try {
-                if (result.indexOf('error') > -1) {
+                if (typeof result === 'string' && result.indexOf('error') > -1) {
+                  reject(JSON.parse(result));
+                } else if (JSON.stringify(result).indexOf('error') > -1) {
                   reject(result);
                 } else {
-                  var res = {
-                    result: true,
-                    transaction_id: ""
-                  };
-                  result = result.replace(/\s+/g, "");
-                  if (result != '') {
-                    result = result.split('transaction:');
-                    res.transaction_id = result[1];
-                    res.result = true;
-                  } else {
-                    res.result = false;
-                  }
+                  var res = (typeof result === 'string') ? JSON.parse(result) : result;
                   resolve(res);
                   if (callback) callback(null, res);
                 }
@@ -392,9 +324,18 @@ var eos = function (network, _eos, options) {
                       var praCallbackFun = getCallbackName();
                       window[praCallbackFun] = function (result) {
                         try {
-                          resolve(res);
+                          if (typeof result === 'string' && result.indexOf('error') > -1) {
+                            reject(JSON.parse(result));
+                          } else if (JSON.stringify(result).indexOf('error') > -1) {
+                            reject(result);
+                          } else {
+                            var res = (typeof result === 'string') ? JSON.parse(result) : result;
+                            resolve(res);
+                            if (callback) callback(null, res);
+                          }
                         } catch (e) {
                           reject(e);
+                          if (callback) callback(e)
                         }
                       }
                       sendPraRequest('contract_all', contract_name, prop, '', praCallbackFun);
@@ -406,15 +347,20 @@ var eos = function (network, _eos, options) {
                       var params = JSON.stringify(values);
                       return new Promise(function (resolve, reject) {
                         var praCallbackFun = getCallbackName();
-                        window[praCallbackFun] = function (res) {
+                        window[praCallbackFun] = function (result) {
                           try {
-                            if (typeof res === 'string' && res.indexOf('error') > -1) {
-                              reject(res)
+                            if (typeof result === 'string' && result.indexOf('error') > -1) {
+                              reject(JSON.parse(result));
+                            } else if (JSON.stringify(result).indexOf('error') > -1) {
+                              reject(result);
                             } else {
+                              var res = (typeof result === 'string') ? JSON.parse(result) : result;
                               resolve(res);
+                              if (callback) callback(null, res);
                             }
                           } catch (e) {
                             reject(e);
+                            if (callback) callback(e)
                           }
                         }
                         sendPraRequest('contract_all', contract_name, prop, params, praCallbackFun);
@@ -583,6 +529,9 @@ Pra.prototype.getIdentity = function (fields) {
         };
         identity = identity.split(',');
         res.accounts[0].name = identity[0];
+        if(identity.count > 2) {
+          res.accounts[0].authority = identity[2];
+        }
         res.publicKey = identity[1];
         self.identity = res;
         resolve(res);
@@ -618,6 +567,9 @@ Pra.prototype.getIdentityFromPermissions = function () {
         identity = identity.split(',');
         res.accounts[0].name = identity[0];
         res.publicKey = identity[1];
+        if(identity.count > 2) {
+          res.accounts[0].authority = identity[2];
+        }
         self.identity = res;
         resolve(res);
       } catch (e) {
