@@ -1,126 +1,245 @@
+var systemAction = [{
+  "name": "newaccount",
+  "type": "newaccount",
+  "ricardian_contract": ""
+}, {
+  "name": "setcode",
+  "type": "setcode",
+  "ricardian_contract": ""
+}, {
+  "name": "setabi",
+  "type": "setabi",
+  "ricardian_contract": ""
+}, {
+  "name": "updateauth",
+  "type": "updateauth",
+  "ricardian_contract": ""
+}, {
+  "name": "deleteauth",
+  "type": "deleteauth",
+  "ricardian_contract": ""
+}, {
+  "name": "linkauth",
+  "type": "linkauth",
+  "ricardian_contract": ""
+}, {
+  "name": "unlinkauth",
+  "type": "unlinkauth",
+  "ricardian_contract": ""
+}, {
+  "name": "canceldelay",
+  "type": "canceldelay",
+  "ricardian_contract": ""
+}, {
+  "name": "onerror",
+  "type": "onerror",
+  "ricardian_contract": ""
+}, {
+  "name": "buyrambytes",
+  "type": "buyrambytes",
+  "ricardian_contract": ""
+}, {
+  "name": "buyram",
+  "type": "buyram",
+  "ricardian_contract": ""
+}, {
+  "name": "sellram",
+  "type": "sellram",
+  "ricardian_contract": ""
+}, {
+  "name": "delegatebw",
+  "type": "delegatebw",
+  "ricardian_contract": ""
+}, {
+  "name": "undelegatebw",
+  "type": "undelegatebw",
+  "ricardian_contract": ""
+}, {
+  "name": "refund",
+  "type": "refund",
+  "ricardian_contract": ""
+}, {
+  "name": "regproducer",
+  "type": "regproducer",
+  "ricardian_contract": ""
+}, {
+  "name": "setram",
+  "type": "setram",
+  "ricardian_contract": ""
+}, {
+  "name": "bidname",
+  "type": "bidname",
+  "ricardian_contract": ""
+}, {
+  "name": "unregprod",
+  "type": "unregprod",
+  "ricardian_contract": ""
+}, {
+  "name": "regproxy",
+  "type": "regproxy",
+  "ricardian_contract": ""
+}, {
+  "name": "voteproducer",
+  "type": "voteproducer",
+  "ricardian_contract": ""
+}, {
+  "name": "claimrewards",
+  "type": "claimrewards",
+  "ricardian_contract": ""
+}, {
+  "name": "setpriv",
+  "type": "setpriv",
+  "ricardian_contract": ""
+}, {
+  "name": "rmvproducer",
+  "type": "rmvproducer",
+  "ricardian_contract": ""
+}, {
+  "name": "setalimits",
+  "type": "set_account_limits",
+  "ricardian_contract": ""
+}, {
+  "name": "setglimits",
+  "type": "set_global_limits",
+  "ricardian_contract": ""
+}, {
+  "name": "setprods",
+  "type": "set_producers",
+  "ricardian_contract": ""
+}, {
+  "name": "reqauth",
+  "type": "require_auth",
+  "ricardian_contract": ""
+}, {
+  "name": "setparams",
+  "type": "setparams",
+  "ricardian_contract": ""
+}
+];
+
 /*自定义promise*/
 function MyPromise(fn) {
-  this.value;
-  this.status = 'pending';
-  this.resolveFunc = function () { };
-  this.rejectFunc = function () { };
-  fn(this.resolve.bind(this), this.reject.bind(this));
+this.value;
+this.status = 'pending';
+this.resolveFunc = function () { };
+this.rejectFunc = function () { };
+fn(this.resolve.bind(this), this.reject.bind(this));
 }
 
 MyPromise.prototype = {
-  resolve: function (val) {
-    var self = this;
-    if (this.status == 'pending') {
+resolve: function (val) {
+  var self = this;
+  if (this.status == 'pending') {
       this.status = 'resolved';
       this.value = val;
       setTimeout(function () {
-        self.resolveFunc(self.value);
+          self.resolveFunc(self.value);
       }, 0);
-    }
-  },
-  reject: function (val) {
-    var self = this;
-    if (this.status == 'pending') {
+  }
+},
+reject: function (val) {
+  var self = this;
+  if (this.status == 'pending') {
       this.status = 'rejected';
       this.value = val;
       setTimeout(function () {
-        self.rejectFunc(self.value);
+          self.rejectFunc(self.value);
       }, 0);
-    }
-  },
-  then: function (resolveFunc, rejectFunc) {
-    var self = this;
-    return new MyPromise(function (resolve_next, reject_next) {
+  }
+},
+then: function (resolveFunc, rejectFunc) {
+  var self = this;
+  return new MyPromise(function (resolve_next, reject_next) {
       function resolveFuncWrap() {
-        var result = resolveFunc(self.value);
-        if (result && typeof result.then === 'function') {
-          result.then(resolve_next, reject_next);
-        } else {
-          resolve_next(result);
-        }
+          var result = resolveFunc(self.value);
+          if (result && typeof result.then === 'function') {
+              result.then(resolve_next, reject_next);
+          } else {
+              resolve_next(result);
+          }
       }
       function rejectFuncWrap() {
-        if (typeof rejectFunc !== 'function') {
-          rejectFunc = function () { return self.value };
-        }
-        var result = rejectFunc(self.value);
-        if (result && typeof result.then === 'function') {
-          result.then(resolve_next, reject_next);
-        } else {
-          reject_next(result);
-        }
+          if (typeof rejectFunc !== 'function') {
+              rejectFunc = function () { return self.value };
+          }
+          var result = rejectFunc(self.value);
+          if (result && typeof result.then === 'function') {
+              result.then(resolve_next, reject_next);
+          } else {
+              reject_next(result);
+          }
       }
       self.resolveFunc = resolveFuncWrap;
       self.rejectFunc = rejectFuncWrap;
-    })
-  },
-  catch: function (resolveFunc) {
-    var self = this;
-    return new MyPromise(function (resolve_next, reject_next) {
+  })
+},
+catch: function (resolveFunc) {
+  var self = this;
+  return new MyPromise(function (resolve_next, reject_next) {
       function resolveFuncWrap() {
-        if (self.status !== 'resolved') {
-          var result = resolveFunc(self.value);
-          if (result && typeof result.then === 'function') {
-            result.then(resolve_next, reject_next);
-          } else {
-            resolve_next(result);
+          if (self.status !== 'resolved') {
+              var result = resolveFunc(self.value);
+              if (result && typeof result.then === 'function') {
+                  result.then(resolve_next, reject_next);
+              } else {
+                  resolve_next(result);
+              }
           }
-        }
       }
 
       function rejectFuncWrap() {
-        var result = resolveFunc(self.value);
-        if (result && typeof result.then === 'function') {
-          result.then(resolve_next, reject_next);
-        } else {
-          resolve_next(result);
-        }
+          var result = resolveFunc(self.value);
+          if (result && typeof result.then === 'function') {
+              result.then(resolve_next, reject_next);
+          } else {
+              resolve_next(result);
+          }
       }
       self.resolveFunc = resolveFuncWrap;
       self.rejectFunc = rejectFuncWrap;
-    })
-  }
+  })
+}
 }
 
 /*
 ***生成随机回调函数名称***
 */
 var getCallbackName = function () {
-  var random = parseInt(Math.random() * 100000)
-  return 'pra_callback_' + new Date().getTime() + random
+var random = parseInt(Math.random() * 100000)
+return 'pra_callback_' + new Date().getTime() + random
 }
 
 /*
 ***判断客户端类型***
 */
 var getOperatingSystem = function () {
-  var u = navigator.userAgent
-  var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1 // android 终端
-  var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) // ios 终端
-  if (isAndroid) {
-    return 'Android'
-  } else if (isIOS) {
-    return 'iOS'
-  }
+var u = navigator.userAgent
+var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1 // android 终端
+var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) // ios 终端
+if (isAndroid) {
+  return 'Android'
+} else if (isIOS) {
+  return 'iOS'
+}
 }
 
 /*
 ***自定义事件兼容性处理***
 */
 var createCustomEvent = function () {
-  if (typeof window.CustomEvent === 'function') return false
-  function CustomEvent(event, params) {
-    params = params || {
+if (typeof window.CustomEvent === 'function') return false
+function CustomEvent(event, params) {
+  params = params || {
       bubbles: false,
       cancelable: false,
       detail: undefined
-    }
-    var evt = document.createEvent('CustomEvent')
-    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail)
-    return evt
   }
-  CustomEvent.prototype = window.Event.prototype
-  window.CustomEvent = CustomEvent
+  var evt = document.createEvent('CustomEvent')
+  evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail)
+  return evt
+}
+CustomEvent.prototype = window.Event.prototype
+window.CustomEvent = CustomEvent
 }
 
 /*
@@ -132,20 +251,20 @@ var createCustomEvent = function () {
 ***@cbName 回调函数名称，字符串，不可为空
 */
 var sendPraRequest = function (methodName, contractName, actionName, params, cbName) {
-  var device_type = getOperatingSystem()
-  if (device_type === 'Android') {
-    //Prochain[methodName](contractName,actionName,params,cbName)
-  } else if (device_type === 'iOS') {
-    var message = {
+var device_type = getOperatingSystem()
+if (device_type === 'Android') {
+  //Prochain[methodName](contractName,actionName,params,cbName)
+} else if (device_type === 'iOS') {
+  var message = {
       'method': methodName,
       'contract_name': contractName,
       'action_name': actionName,
       'params': params,
       'callback': cbName
-    }
-    window.webkit.messageHandlers.Prochain.postMessage(message)
   }
-  window.postMessage({ type: methodName, params: params, msg: cbName }, '*');
+  window.webkit.messageHandlers.Prochain.postMessage(message)
+}
+window.postMessage({ type: methodName, params: params, msg: cbName }, '*');
 }
 
 /*
@@ -156,260 +275,309 @@ var sendPraRequest = function (methodName, contractName, actionName, params, cbN
 ***对transaction、transfer、contract及其子方法进行拦截转发***
 */
 var eos = function (network, _eos, options) {
-  var chainId = network.chainId;
-  var protocol = network.protocol ? network.protocol : 'https';
-  var port = network.port != '' ? ':' + network.port : '';
-  var httpEndpoint = protocol + '://' + network.host + port;
-  console.log(httpEndpoint)
-  return new Proxy(_eos({ httpEndpoint: httpEndpoint, chainId: chainId }), {
-    get: function (obj, prop) {
+var chainId = network.chainId;
+var protocol = network.protocol ? network.protocol : 'https';
+var port = network.port != '' ? ':' + network.port : '';
+var httpEndpoint = protocol + '://' + network.host + port;
+console.log(httpEndpoint)
+return new Proxy(_eos({ httpEndpoint: httpEndpoint, chainId: chainId }), {
+  get: function (obj, prop) {
       if (prop == 'transaction') {
-        return function () {
-          var params = Array.prototype.slice.apply(arguments);
-          var paramStr, callback, callbackType,cb;
-          switch (params.length) {
-            case 1:
-              let [param] = params;
-              if (typeof param === 'function') {
-                paramStr = 'eosio.token';
-                callback = param;
-                callbackType = 0;
-              } else {
-                paramStr = JSON.stringify(param);
-              }
-              break;
-            case 2:
-              const [first, second] = params;
-              const pType = Object.prototype.toString.call(first);
-              if (pType.search(/function/i) > -1) {
-                paramStr = JSON.stringify({
-                  contract_name: 'eosio.token',
-                  options: second
-                });
-                callback = first;
-                callbackType = 1;
-              } else if (pType.search(/(object object)/i) > -1) {
-                if (typeof second === 'function') {
-                  paramStr = JSON.stringify(first);
-                  callback = second;
-                  callbackType = 2;
-                } else {
-                  paramStr = JSON.stringify({
-                    actions: first,
-                    options: second
-                  });
-                }
-              } else if (pType.search(/array/i) > -1) {
-                paramStr = JSON.stringify(first);
-                callback = second;
-                callbackType = 3;
-              } else {
-                paramStr = JSON.stringify(first);
-                callback = second;
-                callbackType = 4;
-              }
-              break;
-            case 3:
-              let callback1;
-              paramStr = JSON.stringify(params[1]);
-              callback = params[0];
-              cb = params[2];
-              callbackType = 5;
-              break;
-          }
-          return new MyPromise(function (resolve, reject) {
-            var praCallbackFun = getCallbackName();
-            window[praCallbackFun] = function (result) {
-              try {
-                if (typeof result === 'string' && result.indexOf('error') > -1) {
-                  reject(JSON.parse(result));
-                } else if (JSON.stringify(result).indexOf('error') > -1) {
-                  reject(result);
-                } else {
-                  var res = (typeof result === 'string') ? JSON.parse(result) : result;
-                  resolve(res);
-                  if (callback) callback(null, res);
-                }
-              } catch (e) {
-                reject(e);
-                if (callback) callback(e)
-              }
-            }
-            sendPraRequest('transaction', 'eosio.token', '', paramStr, praCallbackFun);
-          });
-        }
-      } else if (prop == 'transfer') {
-        return function () {
-          var param = Array.prototype.slice.apply(arguments);
-          var callback;
-          if (param.length > 1) {
-            if (typeof param[0] === 'object') {
-              params = param[0]
-            } else {
-              var params = {
-                from: param[0],
-                to: param[1],
-                quantity: param[2],
-                memo: param[3]
-              }
-              if (typeof param[4] === 'function') {
-                callback = param[4];
-              }
-            }
-          } else {
-            params = param[0]
-          }
-          params = JSON.stringify(params);
-          return new Promise(function (resolve, reject) {
-            var praCallbackFun = getCallbackName();
-            window[praCallbackFun] = function (result) {
-              try {
-                if (typeof result === 'string' && result.indexOf('error') > -1) {
-                  reject(JSON.parse(result));
-                } else if (JSON.stringify(result).indexOf('error') > -1) {
-                  reject(result);
-                } else {
-                  var res = (typeof result === 'string') ? JSON.parse(result) : result;
-                  resolve(res);
-                  if (callback) callback(null, res);
-                }
-              } catch (e) {
-                reject(e);
-                if (callback) callback(e)
-              }
-            }
-            sendPraRequest('transfer', 'eosio.token', '', params, praCallbackFun);
-          });
-        }
-      } else if (prop == 'contract') {
-        return function () {
-          var params = Array.prototype.slice.apply(arguments);
-          var contract_name = params[0], callback, paramStr;
-          switch (params.length) {
-            case 1:
-              callback = null;
-              paramStr = JSON.stringify({
-                contract_name: contract_name
-              });
-              break;
-            case 2:
-              if (typeof params[1] === 'function') {
-                callback = params[1];
-                paramStr = JSON.stringify({
-                  contract_name: contract_name
-                });
-              } else {
-                callback = null
-                paramStr = JSON.stringify({
-                  contract_name: contract_name,
-                  options: params[1]
-                });
-              }
-              break;
-            case 3:
-              callback = params[2];
-              paramStr = JSON.stringify({
-                contract_name: contract_name,
-                options: params[1]
-              });
-              break;
-          }
-          return new MyPromise(function (resolve, reject) {
-            var praCallbackFun = getCallbackName();
-            window[praCallbackFun] = function (res) {
-              var contract = new Proxy({}, {
-                get: function (obj, prop) {
-                  if (prop === 'then') {
-                    return new Promise(function (resolve, reject) {
-                      var praCallbackFun = getCallbackName();
-                      window[praCallbackFun] = function (result) {
-                        try {
-                          if (typeof result === 'string' && result.indexOf('error') > -1) {
-                            reject(JSON.parse(result));
-                          } else if (JSON.stringify(result).indexOf('error') > -1) {
-                            reject(result);
-                          } else {
-                            var res = (typeof result === 'string') ? JSON.parse(result) : result;
-                            resolve(res);
-                            if (callback) callback(null, res);
-                          }
-                        } catch (e) {
-                          reject(e);
-                          if (callback) callback(e)
-                        }
+          return function () {
+              var params = Array.prototype.slice.apply(arguments);
+              var paramStr, callback, callbackType, cb;
+              switch (params.length) {
+                  case 1:
+                      let [param] = params;
+                      if (typeof param === 'function') {
+                          paramStr = 'eosio.token';
+                          callback = param;
+                          callbackType = 0;
+                      } else {
+                          paramStr = JSON.stringify(param);
                       }
-                      sendPraRequest('contract_all', contract_name, prop, '', praCallbackFun);
-                    });
-                  }
-                  if (obj[prop] === undefined) {
-                    return function () {
-                      var values = Array.prototype.slice.apply(arguments);
-                      var params = JSON.stringify(values);
-                      return new Promise(function (resolve, reject) {
-                        var praCallbackFun = getCallbackName();
-                        window[praCallbackFun] = function (result) {
-                          try {
-                            if (typeof result === 'string' && result.indexOf('error') > -1) {
-                              reject(JSON.parse(result));
-                            } else if (JSON.stringify(result).indexOf('error') > -1) {
-                              reject(result);
-                            } else {
+                      break;
+                  case 2:
+                      const [first, second] = params;
+                      const pType = Object.prototype.toString.call(first);
+                      if (pType.search(/function/i) > -1) {
+                          paramStr = JSON.stringify({
+                              contract_name: 'eosio.token',
+                              options: second
+                          });
+                          callback = first;
+                          callbackType = 1;
+                      } else if (pType.search(/(object object)/i) > -1) {
+                          if (typeof second === 'function') {
+                              paramStr = JSON.stringify(first);
+                              callback = second;
+                              callbackType = 2;
+                          } else {
+                              paramStr = JSON.stringify({
+                                  actions: first,
+                                  options: second
+                              });
+                          }
+                      } else if (pType.search(/array/i) > -1) {
+                          paramStr = JSON.stringify(first);
+                          callback = second;
+                          callbackType = 3;
+                      } else {
+                          paramStr = JSON.stringify(first);
+                          callback = second;
+                          callbackType = 4;
+                      }
+                      break;
+                  case 3:
+                      let callback1;
+                      paramStr = JSON.stringify(params[1]);
+                      callback = params[0];
+                      cb = params[2];
+                      callbackType = 5;
+                      break;
+              }
+              return new MyPromise(function (resolve, reject) {
+                  var praCallbackFun = getCallbackName();
+                  window[praCallbackFun] = function (result) {
+                      try {
+                          if (typeof result === 'string' && result.indexOf('clayWalletError') > -1) {
+                              const err = new Error(JSON.parse(result).clayWalletError);
+                              throw err;
+                          } else if (JSON.stringify(result).indexOf('clayWalletError') > -1) {
+                              const err = new Error(result.clayWalletError);
+                              throw err;
+                          } else {
                               var res = (typeof result === 'string') ? JSON.parse(result) : result;
                               resolve(res);
-                              if (callback) callback(null, res);
-                            }
-                          } catch (e) {
-                            reject(e);
-                            if (callback) callback(e)
                           }
-                        }
-                        sendPraRequest('contract_all', contract_name, prop, params, praCallbackFun);
-                      });
-                    }
+                      } catch (e) {
+                          reject(e);
+                          if (callback) callback(e);
+                      }
                   }
-                  return obj[prop]
-                }
+                  sendPraRequest('transaction', 'eosio.token', '', paramStr, praCallbackFun);
               });
-
-              try {
-                resolve(contract);
-                if (callback) callback(null, contract);
-              } catch (e) {
-                reject(e);
-                if (callback) callback(e);
+          }
+      } else if (prop == 'transfer') {
+          return function () {
+              var param = Array.prototype.slice.apply(arguments);
+              var callback;
+              if (param.length > 1) {
+                  if (typeof param[0] === 'object') {
+                      params = param[0]
+                  } else {
+                      var params = {
+                          from: param[0],
+                          to: param[1],
+                          quantity: param[2],
+                          memo: param[3]
+                      }
+                      if (typeof param[4] === 'function') {
+                          callback = param[4];
+                      }
+                  }
+              } else {
+                  params = param[0]
               }
-            }
-            sendPraRequest('contract', '', '', paramStr, praCallbackFun);
-          });
-        }
+              params = JSON.stringify(params);
+              return new Promise(function (resolve, reject) {
+                  var praCallbackFun = getCallbackName();
+                  window[praCallbackFun] = function (result) {
+                      try {
+                          if (typeof result === 'string' && result.indexOf('clayWalletError') > -1) {
+                              const err = new Error(JSON.parse(result).clayWalletError);
+                              throw err;
+                          } else if (JSON.stringify(result).indexOf('clayWalletError') > -1) {
+                              const err = new Error(result.clayWalletError);
+                              throw err;
+                          } else {
+                              var res = (typeof result === 'string') ? JSON.parse(result) : result;
+                              resolve(res);
+                          }
+                      } catch (e) {
+                          reject(e);
+                          if (callback) callback(e);
+                      }
+                  }
+                  sendPraRequest('transfer', 'eosio.token', '', params, praCallbackFun);
+              });
+          }
+      } else if (prop == 'contract') {
+          return function () {
+              var params = Array.prototype.slice.apply(arguments);
+              var contract_name = params[0], callback, paramStr;
+              switch (params.length) {
+                  case 1:
+                      callback = null;
+                      paramStr = JSON.stringify({
+                          contract_name: contract_name
+                      });
+                      break;
+                  case 2:
+                      if (typeof params[1] === 'function') {
+                          callback = params[1];
+                          paramStr = JSON.stringify({
+                              contract_name: contract_name
+                          });
+                      } else {
+                          callback = null
+                          paramStr = JSON.stringify({
+                              contract_name: contract_name,
+                              options: params[1]
+                          });
+                      }
+                      break;
+                  case 3:
+                      callback = (typeof params[2] === 'function') ? params[2] : null;
+                      paramStr = JSON.stringify({
+                          contract_name: contract_name,
+                          options: params[1]
+                      });
+                      break;
+              }
+              return new MyPromise(function (resolve, reject) {
+                  var praCallbackFun = getCallbackName();
+                  window[praCallbackFun] = function (res) {
+                      var contract = new Proxy({}, {
+                          get: function (obj, prop) {
+                              if (prop === 'then') {
+                                  return new Promise(function (resolve, reject) {
+                                      var praCallbackFun = getCallbackName();
+                                      window[praCallbackFun] = function (result) {
+                                          try {
+                                              if (typeof result === 'string' && result.indexOf('clayWalletError') > -1) {
+                                                  const err = new Error(JSON.parse(result).clayWalletError);
+                                                  throw err;
+                                              } else if (JSON.stringify(result).indexOf('clayWalletError') > -1) {
+                                                  const err = new Error(result.clayWalletError);
+                                                  throw err;
+                                              } else {
+                                                  var res = (typeof result === 'string') ? JSON.parse(result) : result;
+                                                  resolve(res);
+                                              }
+                                          } catch (e) {
+                                              reject(e);
+                                              if (callback) callback(e);
+                                          }
+                                      }
+                                      sendPraRequest('contract_all', contract_name, prop, '', praCallbackFun);
+                                  });
+                              }
+                              if (obj[prop] === undefined) {
+                                  return function () {
+                                      var values = Array.prototype.slice.apply(arguments);
+                                      var params = JSON.stringify(values);
+                                      return new Promise(function (resolve, reject) {
+                                          var praCallbackFun = getCallbackName();
+                                          window[praCallbackFun] = function (result) {
+                                              try {
+                                                  if (typeof result === 'string' && result.indexOf('clayWalletError') > -1) {
+                                                      const err = new Error(JSON.parse(result).clayWalletError);
+                                                      throw err;
+                                                  } else if (JSON.stringify(result).indexOf('clayWalletError') > -1) {
+                                                      const err = new Error(result.clayWalletError);
+                                                      throw err;
+                                                  } else {
+                                                      var res = (typeof result === 'string') ? JSON.parse(result) : result;
+                                                      resolve(res);
+                                                  }
+                                              } catch (e) {
+                                                  reject(e);
+                                                  if (callback) callback(e);
+                                              }
+                                          }
+                                          sendPraRequest('contract_all', contract_name, prop, params, praCallbackFun);
+                                      });
+                                  }
+                              }
+                              return obj[prop]
+                          }
+                      });
+
+                      try {
+                          resolve(contract);
+                          if (callback) callback(null, contract);
+                      } catch (e) {
+                          reject(e);
+                          if (callback) callback(e);
+                      }
+                  }
+                  sendPraRequest('contract', '', '', paramStr, praCallbackFun);
+              });
+          }
+      } else if (systemAction.filter(action => action.name === prop).length !== 0) {
+          return function() {
+              const actionName = systemAction.filter(action => action.name === prop)[0].type
+              
+              var param = Array.prototype.slice.apply(arguments);
+              var callback;
+              var params;
+              if (param.length > 0) {
+                  if (typeof param[param.length - 1] === 'function') {
+                      callback = param[param.length - 1];
+                      param = param.filter(p => typeof p !== 'function');
+                  }
+                  if (typeof param[0] === 'object') {
+                      params = param[0]
+                  } else {
+                      params = param
+                  }
+              } else {
+                  params = {};
+              }
+              params = JSON.stringify(params);
+
+              return new Promise(function (resolve, reject) {
+                  var praCallbackFun = getCallbackName();
+                  window[praCallbackFun] = function (result) {
+                      try {
+                          if (typeof result === 'string' && result.indexOf('clayWalletError') > -1) {
+                              const err = new Error(JSON.parse(result).clayWalletError);
+                              throw err;
+                          } else if (JSON.stringify(result).indexOf('clayWalletError') > -1) {
+                              const err = new Error(result.clayWalletError);
+                              throw err;
+                          } else {
+                              var res = (typeof result === 'string') ? JSON.parse(result) : result;
+                              resolve(res);
+                          }
+                      } catch (e) {
+                          reject(e);
+                          if (callback) callback(e);
+                      }
+                  }
+                  sendPraRequest('contract_all', 'eosio', actionName, params, praCallbackFun);
+              });
+          }
       }
+
       return obj[prop];
-    }
-  })
+  }
+})
 }
 
 function Pra() {
-  this.identity = null;
-  this.eos = eos;
-  this.isExtension = true;
-  this.version = '1.0.0';
-  createCustomEvent();
-  var event = new CustomEvent(
-    'scatterLoaded', {
+this.identity = null;
+this.eos = eos;
+this.isExtension = true;
+this.version = '1.0.0';
+createCustomEvent();
+var event = new CustomEvent(
+  'scatterLoaded', {
       'detail': { 'hazcheeseburger': true }
-    }
-  );
-  setTimeout(function () {
-    document.dispatchEvent(event);
-  }, 1000);
+  }
+);
+setTimeout(function () {
+  document.dispatchEvent(event);
+}, 1000);
 
-  window.addEventListener('message', function (event) {
-    if (event.data.type == 'callback') {
+window.addEventListener('message', function (event) {
+  if (event.data.type == 'callback') {
       var name = event.data.name;
       // console.log('callbackname:' + name)
       window[name](event.data.msg)
-    }
-  }, false);
+  }
+}, false);
 }
 
 /*
@@ -418,91 +586,91 @@ function Pra() {
 ***@return 返回布尔值，true或false
 */
 Pra.prototype.connect = function (appname, options) {
-  if (!appname || !appname.length) throw new Error("You must specify a name for this connection");
-  options = Object.assign({ initTimeout: 10000, linkTimeout: 30000 }, options);
-  options = JSON.stringify(options);
-  this.isExtension = false;
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (res) {
+if (!appname || !appname.length) throw new Error("You must specify a name for this connection");
+options = Object.assign({ initTimeout: 10000, linkTimeout: 30000 }, options);
+options = JSON.stringify(options);
+this.isExtension = false;
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (res) {
       try {
-        res = JSON.parse(res);
-        resolve(res);
+          res = JSON.parse(res);
+          resolve(res);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    sendPraRequest('connect', '', '', options, praCallbackFun);
-  });
+  }
+  sendPraRequest('connect', '', '', options, praCallbackFun);
+});
 }
 
 /*
 ***断开连接，无参数***
 */
 Pra.prototype.disconnect = function () {
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (res) {
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (res) {
       try {
-        resolve(res);
+          resolve(res);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    sendPraRequest('disconnect', '', '', '', praCallbackFun);
-  });
+  }
+  sendPraRequest('disconnect', '', '', '', praCallbackFun);
+});
 }
 
 /*
 ***判断scatter是否连接成功，无参数***
 */
 Pra.prototype.isConnected = function () {
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (res) {
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (res) {
       try {
-        resolve(res);
+          resolve(res);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    if (window.scatter) window[praCallbackFun](true);
-  });
+  }
+  if (window.scatter) window[praCallbackFun](true);
+});
 }
 
 /*
 ***判断密钥是否成对，无参数***
 */
 Pra.prototype.isPaired = function () {
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (res) {
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (res) {
       try {
-        resolve(res);
+          resolve(res);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    if (window.scatter.identity.publicKey) window[praCallbackFun](true);
-  });
+  }
+  if (window.scatter.identity.publicKey) window[praCallbackFun](true);
+});
 }
 
 /*
 ***获得scatter版本***
 */
 Pra.prototype.getVersion = function () {
-  var self = this;
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (res) {
+var self = this;
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (res) {
       try {
-        resolve(res);
+          resolve(res);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    window[praCallbackFun](self.version);
-  });
+  }
+  window[praCallbackFun](self.version);
+});
 }
 
 /*
@@ -510,37 +678,37 @@ Pra.prototype.getVersion = function () {
 ***@return 返回identity对象
 */
 Pra.prototype.getIdentity = function (fields) {
-  var self = this;
-  fields = typeof fields === 'object' ? JSON.stringify(fields) : fields;
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (identity) {
+var self = this;
+fields = typeof fields === 'object' ? JSON.stringify(fields) : fields;
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (identity) {
       try {
-        var res = {
-          hash: '8391a38e0df2a7d94518b6ecabf0ce03925b34e5eb65c4a246b38a1bf6085348',
-          kyc: false,
-          name: 'RandomRagdoll5342476',
-          publicKey: '',
-          accounts: [{
-            authority: 'active',
-            blockchain: 'eos',
-            name: ''
-          }]
-        };
-        identity = identity.split(',');
-        res.accounts[0].name = identity[0];
-        if(identity.count > 2) {
-          res.accounts[0].authority = identity[2];
-        }
-        res.publicKey = identity[1];
-        self.identity = res;
-        resolve(res);
+          var res = {
+              hash: '8391a38e0df2a7d94518b6ecabf0ce03925b34e5eb65c4a246b38a1bf6085348',
+              kyc: false,
+              name: 'RandomRagdoll5342476',
+              publicKey: '',
+              accounts: [{
+                  authority: 'active',
+                  blockchain: 'eos',
+                  name: ''
+              }]
+          };
+          identity = identity.split(',');
+          res.accounts[0].name = identity[0];
+          if (identity.count > 2) {
+              res.accounts[0].authority = identity[2];
+          }
+          res.publicKey = identity[1];
+          self.identity = res;
+          resolve(res);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    sendPraRequest('getIdentity', '', '', fields, praCallbackFun);
-  });
+  }
+  sendPraRequest('getIdentity', '', '', fields, praCallbackFun);
+});
 }
 
 /*
@@ -548,36 +716,36 @@ Pra.prototype.getIdentity = function (fields) {
 ***@从已授权账户返回identity对象
 */
 Pra.prototype.getIdentityFromPermissions = function () {
-  var self = this;
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (identity) {
+var self = this;
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (identity) {
       try {
-        var res = {
-          hash: '8391a38e0df2a7d94518b6ecabf0ce03925b34e5eb65c4a246b38a1bf6085348',
-          kyc: false,
-          name: 'RandomRagdoll5342476',
-          publicKey: '',
-          accounts: [{
-            authority: 'active',
-            blockchain: 'eos',
-            name: ''
-          }]
-        };
-        identity = identity.split(',');
-        res.accounts[0].name = identity[0];
-        res.publicKey = identity[1];
-        if(identity.count > 2) {
-          res.accounts[0].authority = identity[2];
-        }
-        self.identity = res;
-        resolve(res);
+          var res = {
+              hash: '8391a38e0df2a7d94518b6ecabf0ce03925b34e5eb65c4a246b38a1bf6085348',
+              kyc: false,
+              name: 'RandomRagdoll5342476',
+              publicKey: '',
+              accounts: [{
+                  authority: 'active',
+                  blockchain: 'eos',
+                  name: ''
+              }]
+          };
+          identity = identity.split(',');
+          res.accounts[0].name = identity[0];
+          res.publicKey = identity[1];
+          if (identity.count > 2) {
+              res.accounts[0].authority = identity[2];
+          }
+          self.identity = res;
+          resolve(res);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    sendPraRequest('getIdentityFromPermissions', '', '', '', praCallbackFun);
-  });
+  }
+  sendPraRequest('getIdentityFromPermissions', '', '', '', praCallbackFun);
+});
 }
 
 /*
@@ -585,17 +753,17 @@ Pra.prototype.getIdentityFromPermissions = function () {
 ***@return 返回signedOrigin
 */
 Pra.prototype.authenticate = function (str) {
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (result) {
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (result) {
       try {
-        resolve(result);
+          resolve(result);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    sendPraRequest('authenticate', '', '', str, praCallbackFun);
-  });
+  }
+  sendPraRequest('authenticate', '', '', str, praCallbackFun);
+});
 }
 
 /*
@@ -603,35 +771,35 @@ Pra.prototype.authenticate = function (str) {
 ***@return 返回被添加的网络
 */
 Pra.prototype.suggestNetwork = function (network) {
-  param = typeof network === 'object' ? JSON.stringify(network) : network;
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (result) {
+param = typeof network === 'object' ? JSON.stringify(network) : network;
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (result) {
       try {
-        resolve(result);
+          resolve(result);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    sendPraRequest('suggestNetwork', '', '', param, praCallbackFun);
-  });
+  }
+  sendPraRequest('suggestNetwork', '', '', param, praCallbackFun);
+});
 }
 
 /*
 ***退出用户授权，无参数***
 */
 Pra.prototype.forgetIdentity = function () {
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (result) {
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (result) {
       try {
-        resolve(result);
+          resolve(result);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    sendPraRequest('forgetIdentity', '', '', '', praCallbackFun);
-  })
+  }
+  sendPraRequest('forgetIdentity', '', '', '', praCallbackFun);
+})
 }
 
 /*
@@ -643,23 +811,23 @@ Pra.prototype.forgetIdentity = function () {
 ***@return 返回签名
 */
 Pra.prototype.getArbitrarySignature = function (publicKey, data, whatFor, isHash) {
-  var params = JSON.stringify({
-    publick_key: publicKey,
-    data: data,
-    what_for: whatFor,
-    is_hash: isHash
-  });
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (result) {
+var params = JSON.stringify({
+  publick_key: publicKey,
+  data: data,
+  what_for: whatFor,
+  is_hash: isHash
+});
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (result) {
       try {
-        resolve(result);
+          resolve(result);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    sendPraRequest('getArbitrarySignature', '', '', params, praCallbackFun);
-  })
+  }
+  sendPraRequest('getArbitrarySignature', '', '', params, praCallbackFun);
+})
 }
 
 /*
@@ -668,34 +836,34 @@ Pra.prototype.getArbitrarySignature = function (publicKey, data, whatFor, isHash
 ***@return 返回公钥
 */
 Pra.prototype.getPublicKey = function (blockchain) {
-  return new Promise(function (resolve, reject) {
-    var praCallbackFun = getCallbackName();
-    window[praCallbackFun] = function (res) {
+return new Promise(function (resolve, reject) {
+  var praCallbackFun = getCallbackName();
+  window[praCallbackFun] = function (res) {
       try {
-        resolve(res);
+          resolve(res);
       } catch (e) {
-        reject(e);
+          reject(e);
       }
-    }
-    window[praCallbackFun](window.scatter.identity.publicKey);
-  });
+  }
+  window[praCallbackFun](window.scatter.identity.publicKey);
+});
 }
 
 if (typeof window !== 'undefined') {
-  window.scatter = new Pra();
-  try {
-    if (typeof ScatterJS !== 'undefined') {
+window.scatter = new Pra();
+try {
+  if (typeof ScatterJS !== 'undefined') {
       window.ScatterJS = new Proxy(ScatterJS, {
-        get: function (obj, prop) {
-          if (prop === 'scatter') {
-            return window.scatter;
+          get: function (obj, prop) {
+              if (prop === 'scatter') {
+                  return window.scatter;
+              }
+              return obj[prop];
           }
-          return obj[prop];
-        }
       })
-    }
-  } catch (e) {
-    console.log(e);
-    alert('ScatterJS does not exsit')
   }
+} catch (e) {
+  console.log(e);
+  alert('ScatterJS does not exsit')
+}
 }
